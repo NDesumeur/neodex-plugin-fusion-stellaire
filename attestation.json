@@ -1,9 +1,9 @@
 {
   "pluginId": "neodex.fusionstellaire",
   "repo": "NDesumeur/neodex-plugin-fusion-stellaire",
-  "version": "1.1.1",
-  "sha256": "17d648c28c94ecb56e3fbb14d281b7721a111c8d1f0fa8ac09f4114f166f8df1",
-  "approvedAt": "2026-11-06T21:35:47.991Z",
+  "version": "1.1.2",
+  "sha256": "b2c45d7d80dd91b3bba0acdca66e2a621116a9d03c1f161abc114848b2b63dbb",
+  "approvedAt": "2026-11-08T12:10:48.034Z",
   "neobase": ">=4.0.0",
-  "signature": "dhhEPjJ+TUIAmZIwP6vbY4ICRDIDT7XZGhVnqljmaFul52MdfonvH9OFD7bptFJys9JcU84eGlnSA0z4ENYRBQ=="
+  "signature": "HqmshiJccG5ZNbqcyMYSApf728rHpp/lgfho7HnnMLShWtmk2ntL1S/RpTlFiSf8kDIjnMbBOOY34+GPMK6nCw=="
 }
