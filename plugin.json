@@ -1,7 +1,7 @@
 {
   "id": "neodex.fusionstellaire",
   "name": "Fusion stellaire",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": "NDesumeur",
   "description": "Fais glisser toutes les tuiles d'un côté : deux astres identiques fusionnent en l'astre suivant, de la poussière jusqu'au trou noir. Des débris immobiles coupent les lignes et cassent près d'une fusion ; annulation et trou de ver pour échanger deux tuiles se rechargent en jouant. Modes Galaxie 5 × 5 et Nébuleuse 4 × 4, 15 défis à étoiles, partie en cours reprise sur ton autre PC.",
   "icon": "icon.png",
