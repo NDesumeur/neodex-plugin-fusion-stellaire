@@ -9,11 +9,15 @@ Un jeu de tuiles qui glissent et fusionnent : à chaque coup, toutes les tuiles 
 - **Flèches**, **ZQSD** ou **glisser à la souris** : toutes les tuiles glissent de ce côté.
 - **U** ou **Annuler** : annule le dernier coup.
 - **T** ou **Trou de ver** : clique deux tuiles pour les échanger.
+- **P** ou **Échap** : pause.
+- **Manette** : la croix ou le stick pour glisser, **X** pour annuler, **Y** pour le trou de ver (la croix déplace un curseur, **A** prend la tuile, **B** renonce), **A** ou **Start** pour rejouer, **Start** pour la pause.
+- **Plein écran** : le bouton du même nom ; Échap pour en sortir. Hors plein écran, le jeu prend la hauteur de la fenêtre.
 
 ## Règles
 
 - Après chaque coup, un nouvel astre apparaît dans une case libre (le plus souvent de la poussière, parfois un caillou).
-- Deux astres pareils qui se rencontrent en glissant fusionnent en l'astre suivant, une seule fois par coup.
+- Deux astres pareils qui se rencontrent en glissant fusionnent en l'astre suivant, une seule fois par coup : ils tournent l'un vers l'autre, s'attirent, puis éclatent en étincelles de la couleur du nouvel astre. Le son de la fusion monte d'une note à chaque étape, et un grondement accompagne les étoiles et au-delà ; le glissement lui-même sonne plus aigu quand de gros astres sont en jeu.
+- Chaque astre a son dessin, gros et lumineux, pour le reconnaître d'un coup d'œil : nuage d'étincelles, pierre, astéroïde grêlé de cratères, comète à longue queue, lune, planète bleue aux continents verts, planète à anneaux, géante rayée à tache rouge, étoile rayonnante, supernova, trou noir et son disque de lumière.
 - L'échelle des astres : poussière → caillou → astéroïde → comète → lune → planète → planète à anneaux → géante gazeuse → étoile → supernova → trou noir.
 - Les **débris** ne bougent pas et ne fusionnent pas : ils coupent la ligne en morceaux qui glissent chacun de leur côté, et ils **cassent** quand une fusion se fait juste à côté.
 - La partie s'arrête quand plus aucun coup n'est possible.
