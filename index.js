@@ -355,13 +355,17 @@ const FU_LEVELS = [
 const fuSave = () => gstore('fusion', {best: {}, maxStage: 0, stars: {}, games: 0, cur: null});
 let fu = null;
 const fuGoalText = g => g.stage != null ? FU.stages[g.stage][0] + (g.moves ? ' en ' + g.moves + ' coups' : '') : g.debris ? 'Casser ' + g.debris + ' débris' : g.score + ' points' + (g.moves ? ' en ' + g.moves + ' coups' : '');
+// les formes de grille : des cases vides (murs) qui ne bougent jamais, ne cassent jamais et coupent les lignes comme un débris
+const FU_SHAPES = {anneau: {n: 5, walls: [12], name: 'Anneau · 5 × 5 sans le milieu'}, croix: {n: 5, walls: [0, 4, 20, 24], name: 'Croix · 5 × 5 sans les coins'},
+  grand: {n: 6, walls: [], name: 'Grand espace · 6 × 6'}, sablier: {n: 6, walls: [0, 1, 4, 5, 6, 11, 24, 29, 30, 31, 34, 35], name: 'Sablier · 6 × 6 en losange'}};
 function fuStart(kind = 'galaxie', level = 0, resume = null) {
-  const lv = kind === 'defi' ? FU_LEVELS[level] : null, n = lv ? lv[1] : kind === 'nebuleuse' ? 4 : 5;
+  const lv = kind === 'defi' ? FU_LEVELS[level] : null, sh = FU_SHAPES[kind], n = lv ? lv[1] : sh ? sh.n : kind === 'nebuleuse' ? 4 : 5;
   fu = {raf: fu?.raf || 0, g: $('fuCanvas').getContext('2d'), mode: 'play', kind, level, lv, goal: lv?.[2] || null, n, tick: 0,
     grid: Array.from({length: n * n}, () => null), score: 0, moves: 0, best: 0, broken: 0, undo: [], undos: 2, holes: 1, picking: null, seq: 1,
     anim: 0, slides: [], pops: [], parts: [], fuseFx: [], queued: null, cur: 0, flash: 0, banner: null, won: false, reached: {}};
   if (resume) { Object.assign(fu, resume, {g: fu.g, raf: fu.raf, mode: 'play', anim: 0, slides: [], pops: [], parts: [], fuseFx: [], queued: null}); fu.grid.forEach(t => { if (t) t.born = -100; }); }  // une partie reprise : ses tuiles sont déjà là
   else {
+    for (const w of sh?.walls || []) fu.grid[w] = {id: fu.seq++, debris: true, wall: true, born: -100};
     for (let i = 0; i < (lv?.[3].debris || 0); i++) fuSpawn({debris: true});
     fuSpawn(); fuSpawn();
   }
@@ -408,7 +412,7 @@ function fuMove(dir) {
   for (const [b, a, s] of fused) {
     fu.score += 2 ** (s + 1) * 2;
     const i = at(a, b), x = i % n, y = i / n | 0; fu.fuseFx.push({x, y, s: s - 1, t0: fu.tick + FU_SLIDE});
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy, j = Y * n + X; if (X >= 0 && Y >= 0 && X < n && Y < n && fu.grid[j]?.debris) { fu.grid[j] = null; fu.broken++; fuBurst(X, Y, '#8f8fa8', 10); } }
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy, j = Y * n + X; if (X >= 0 && Y >= 0 && X < n && Y < n && fu.grid[j]?.debris && !fu.grid[j].wall) { fu.grid[j] = null; fu.broken++; fuBurst(X, Y, '#8f8fa8', 10); } }
     if (s > fu.best) { fu.best = s; if (s >= 4 && !fu.reached[s]) { fu.reached[s] = true; fu.banner = {text: FU.stages[s][0].toUpperCase() + ' !', t: 90}; } }
     if (s === FU.stages.length - 1) fu.undos++, fu.holes++;  // a black hole gives a charge of each power
   }
@@ -476,7 +480,7 @@ function fuUpdate() {
   for (const p of fu.parts) { p.x += p.vx; p.y += p.vy; p.vx *= .96; p.vy *= .96; p.t--; } fu.parts = fu.parts.filter(p => p.t > 0);
 }
 /* ---------- drawing: each celestial object is drawn in pixels, bigger and brighter as it grows ---------- */
-const fuLayout = () => { const c = fu.n === 4 ? 50 : 42, w = c * fu.n; return {c, x: (FU.W - w) / 2, y: 62, w}; };
+const fuLayout = () => { const c = fu.n === 4 ? 50 : fu.n === 6 ? 36 : 42, w = c * fu.n; return {c, x: (FU.W - w) / 2, y: 62, w}; };
 const fuSprites = {};
 function fuSprite(s, size) {  // dessiné une fois par astre et par taille
   const k = s + ':' + size; if (fuSprites[k]) return fuSprites[k];
@@ -549,7 +553,7 @@ function fuDraw() {
   const gg = fu.goal; big(gg ? (gg.stage != null ? FU.stages[gg.stage][0] : gg.debris ? 'Débris ' + fu.broken + '/' + gg.debris : fu.score + '/' + gg.score) : String(games?.best['fusion_' + fu.kind] ?? 0), FU.W / 2, 'center', '#f4eaff');
   // board
   g.fillStyle = '#1c1238'; g.fillRect(L.x - 4, L.y - 4, L.w + 8, L.w + 8);
-  for (let i = 0; i < n * n; i++) { const x = L.x + (i % n) * c, y = L.y + (i / n | 0) * c; g.fillStyle = (i % n + (i / n | 0)) % 2 ? '#120a28' : '#160d30'; g.fillRect(x + 1, y + 1, c - 2, c - 2); }
+  for (let i = 0; i < n * n; i++) { const x = L.x + (i % n) * c, y = L.y + (i / n | 0) * c; if (fu.grid[i]?.wall) { g.fillStyle = '#0b031c'; g.fillRect(x, y, c, c); g.fillStyle = 'rgba(217,198,255,.35)'; g.fillRect(x + (i * 7 % (c - 4)) + 2, y + (i * 13 % (c - 4)) + 2, 1, 1); continue; } g.fillStyle = (i % n + (i / n | 0)) % 2 ? '#120a28' : '#160d30'; g.fillRect(x + 1, y + 1, c - 2, c - 2); }
   const k = fu.anim / 7;  // 1 at the start of a slide, 0 at the end
   const place = new Map(); for (const [tile, from, to, a] of fu.slides) place.set(tile.id, [from, to, a]);
   const posOf = (a, b) => { const d = fu.lastDir; return d === 'left' ? [b, a] : d === 'right' ? [n - 1 - b, a] : d === 'up' ? [a, b] : [a, n - 1 - b]; };
@@ -586,6 +590,7 @@ function fuDraw() {
   }
 }
 function fuTile(g, tile, x, y, c, t, sc) {
+  if (tile.wall) return;  // un mur : du vide, on voit les étoiles du fond
   if (tile.debris) return fuDebris(g, x, y, c, t);
   const [, base] = FU.stages[tile.s], size = c - 2;
   g.fillStyle = base + '22'; g.fillRect(x + 3, y + 3, c - 6, c - 6);  // a halo of its colour
@@ -622,10 +627,11 @@ $('fuCanvas').onpointerdown = e => {
   };
 };
 /* ---------- page ---------- */
-function fuInfo() { const s = fuSave(); $('fuStats').replaceChildren(...[['Galaxie', games?.best.fusion_galaxie ?? 0], ['Nébuleuse', games?.best.fusion_nebuleuse ?? 0], ['Plus loin', FU.stages[s.maxStage][0]], ['Défis', Object.values(s.stars).reduce((a, b) => a + b, 0) + ' / ' + FU_LEVELS.length * 3 + ' ★']].flatMap(([a, b]) => [el('span', '', a), el('b', '', String(b))])); }
+function fuInfo() { const s = fuSave(); $('fuStats').replaceChildren(...[['Galaxie', games?.best.fusion_galaxie ?? 0], ['Nébuleuse', games?.best.fusion_nebuleuse ?? 0], ...Object.keys(FU_SHAPES).map(k => [FU_SHAPES[k].name.split(' · ')[0], games?.best['fusion_' + k] ?? 0]), ['Plus loin', FU.stages[s.maxStage][0]], ['Défis', Object.values(s.stars).reduce((a, b) => a + b, 0) + ' / ' + FU_LEVELS.length * 3 + ' ★']].flatMap(([a, b]) => [el('span', '', a), el('b', '', String(b))])); }
 function fuMenu() {
   const s = fuSave(), sel = $('fuMode');
   sel.replaceChildren(Object.assign(el('option', '', 'Galaxie · 5 × 5'), {value: 'galaxie'}), Object.assign(el('option', '', 'Nébuleuse · 4 × 4'), {value: 'nebuleuse'}),
+    ...Object.keys(FU_SHAPES).map(k => Object.assign(el('option', '', FU_SHAPES[k].name), {value: k})),
     ...FU_LEVELS.map(([nm, size, goal], i) => Object.assign(el('option', '', 'Défi ' + (i + 1) + ' · ' + nm + ' · ' + fuGoalText(goal) + (size === 4 ? ' · 4 × 4' : '') + (s.stars[i] ? ' · ' + '★'.repeat(s.stars[i]) : '') + (i && !s.stars[i - 1] && !s.stars[i] ? ' 🔒' : '')), {value: 'd' + i, disabled: !!(i && !s.stars[i - 1] && !s.stars[i])})));
   sel.value = fu ? (fu.kind === 'defi' ? 'd' + fu.level : fu.kind) : 'galaxie';
 }
@@ -678,6 +684,11 @@ function fuSelf() {  // vérification : deux pareils fusionnent une seule fois p
     for (let i = 0; i < FU_SLIDE + FU_PULL + 2; i++) { fuUpdate(); fu.tick++; }
     if (fu.moves !== 2 || fu.queued) bad.push('coup joué après l\'animation');
   } finally { ({fuSpawn, fuInfo, fuCheck, fuStore} = real); }
+  fu = Object.assign(fu, {grid: Array(16).fill(null), anim: 0, queued: null, broken: 0, fuseFx: []}); fu.grid[1] = {id: 2, debris: true, wall: true}; fu.grid[2] = T(3); fu.grid[3] = T(3); fu.grid[0] = T(0);
+  ({fuSpawn, fuInfo, fuCheck, fuStore} = {fuSpawn: () => {}, fuInfo: () => {}, fuCheck: () => {}, fuStore: () => {}});
+  try { fuMove('left'); } finally { ({fuSpawn, fuInfo, fuCheck, fuStore} = real); }
+  if (!(fu.grid[1]?.wall && fu.grid[2]?.s === 4 && fu.grid[0]?.s === 0 && fu.broken === 0)) bad.push('mur');
+  fu.grid = fu.grid.map((t, i) => t?.wall ? t : T(0)); fu.grid[7] = null; fuSpawn(); if (!fu.grid[7] || !fu.grid[1].wall) bad.push('mur rempli');
   // chaque astre se voit : assez de pixels allumés, et aucun n'est pareil à un autre
   const prints = FU.stages.map((_, s) => { const c = fuSprite(s, 40), d = c.getContext('2d').getImageData(0, 0, 40, 40).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++; return [n, c.toDataURL()]; });
   if (prints.some(([n]) => n < 120) || new Set(prints.map(p => p[1])).size !== FU.stages.length) bad.push('astres');

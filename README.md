@@ -4,6 +4,10 @@ Un jeu de tuiles qui glissent et fusionnent : à chaque coup, toutes les tuiles 
 
 *English version: [README.en.md](README.en.md)*
 
+## Formes de grille (nouveau en 1.3.0)
+
+Quatre nouvelles grilles dans le menu : **Anneau** (5 × 5 sans la case du milieu), **Croix** (5 × 5 sans les coins), **Grand espace** (6 × 6) et **Sablier** (6 × 6 en losange). Les cases vides ne bougent jamais, ne cassent jamais et coupent les lignes comme un débris. Chaque forme a son record.
+
 ## Commandes
 
 - **Flèches**, **ZQSD** ou **glisser à la souris** : toutes les tuiles glissent de ce côté.

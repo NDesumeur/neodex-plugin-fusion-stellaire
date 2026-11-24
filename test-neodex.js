@@ -25,6 +25,13 @@ module.exports = async ({ pj, sleep }) => {
   await C(`fu.undos = 2; return 0;`); await btn(2); if (await C('return fu.grid[0]?.s + "|" + fu.grid[1]?.s;') !== '3|5') throw new Error('X devait annuler l\'échange');
   await btn(15); await sleep(300); if (await C('return fu.lastDir;') !== 'right') throw new Error('la croix devait faire glisser les tuiles');
   await pj(`navigator.getGamepads = () => [], 0`);
+  // les formes de grille : chaque forme a ses murs, qui restent vides
+  for (const [m, w] of [['anneau', 1], ['croix', 4], ['sablier', 12], ['grand', 0]]) {
+    await pj(`(() => { const s = document.getElementById('fuMode'); s.value = '${m}'; s.dispatchEvent(new Event('change')); return 0; })()`); await sleep(250); await shot('5-' + m);
+    const got = await C('return fu.kind + "|" + fu.n + "|" + fu.grid.filter(t => t?.wall).length + "|" + fu.grid.filter(t => t && !t.debris).length;');
+    if (got !== m + '|' + (m === 'grand' || m === 'sablier' ? 6 : 5) + '|' + w + '|2') throw new Error('forme ' + m + ' : ' + got);
+  }
+  await pj(`(() => { const s = document.getElementById('fuMode'); s.value = 'galaxie'; s.dispatchEvent(new Event('change')); return 0; })()`); await sleep(150);
   // l'écran de fin
   await C(`fu.mode = 'over'; fu.won = false; fu.record = false; return 0;`); await sleep(80); await shot('4-fin');
   await pj(`document.getElementById('fuNew').click(), 0`); await sleep(100);

@@ -4,6 +4,10 @@ A sliding and merging tiles game: on each move, every tile slides the same way, 
 
 *Version française : [README.md](README.md)*
 
+## Grid shapes (new in 1.3.0)
+
+Four new grids in the menu: **Ring** (5 × 5 without the middle cell), **Cross** (5 × 5 without the corners), **Wide space** (6 × 6) and **Hourglass** (6 × 6 diamond). Empty cells never move, never break and cut lines like debris. Each shape has its own record.
+
 ## Controls
 
 - **Arrows**, **ZQSD** (WASD on QWERTY) or **drag with the mouse**: every tile slides that way.
