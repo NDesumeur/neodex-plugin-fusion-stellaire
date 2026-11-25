@@ -1,7 +1,7 @@
 {
   "id": "neodex.fusionstellaire",
   "name": "Fusion stellaire",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "author": "NDesumeur",
   "description": "Fais glisser toutes les tuiles d'un côté : deux astres identiques s'attirent et fusionnent en l'astre suivant, de la poussière jusqu'au trou noir, avec un son qui monte avec l'astre. Astres dessinés en pixel art, gros et lumineux ; des débris immobiles coupent les lignes et cassent près d'une fusion ; annulation et trou de ver se rechargent en jouant. Modes Galaxie 5 × 5 et Nébuleuse 4 × 4, 15 défis à étoiles, clavier, souris ou manette, plein écran, partie en cours reprise sur ton autre PC. Quatre formes de grille en plus : Anneau, Croix, Grand espace 6 × 6 et Sablier, avec des cases vides qui coupent les lignes.",
   "icon": "icon.png",
@@ -22,5 +22,62 @@
   "sdk": "2.1.0",
   "permissions": [
     "storage"
+  ],
+  "succes": [
+    {
+      "id": "premier",
+      "nom": "Poussière d'étoiles",
+      "texte": "Finir une première partie"
+    },
+    {
+      "id": "planete",
+      "nom": "Naissance d'un monde",
+      "texte": "Former une planète"
+    },
+    {
+      "id": "etoile",
+      "nom": "Que la lumière soit",
+      "texte": "Former une étoile"
+    },
+    {
+      "id": "supernova",
+      "nom": "Supernova",
+      "texte": "Former une supernova"
+    },
+    {
+      "id": "trou-noir",
+      "nom": "L'horizon des événements",
+      "texte": "Former un trou noir",
+      "cache": true
+    },
+    {
+      "id": "defi",
+      "nom": "Premier défi",
+      "texte": "Réussir un défi"
+    },
+    {
+      "id": "defis",
+      "nom": "Maître des défis",
+      "texte": "Réussir tous les défis"
+    },
+    {
+      "id": "vingt",
+      "nom": "Astronome",
+      "texte": "Jouer 20 parties"
+    }
+  ],
+  "records": [
+    {
+      "id": "galaxie",
+      "nom": "Galaxie",
+      "sens": "haut",
+      "format": "nombre"
+    },
+    {
+      "id": "nebuleuse",
+      "nom": "Nébuleuse",
+      "sens": "haut",
+      "format": "nombre"
+    }
   ]
 }

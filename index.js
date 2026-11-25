@@ -312,6 +312,9 @@ export default async function (ctx) {
   const saveGames = () => { clearTimeout(gamesTimer); gamesTimer = setTimeout(() => { gamesTimer = null; folder.write('games', games).catch(() => {}); }, 500); };
   const best = (k, v, higher = true) => { const b = games.best[k]; if (b == null || (higher ? v > b : v < b)) { games.best[k] = v; saveGames(); return true; } return false; };
   const gstore = (k, init) => (games[k] ??= init);  // la section d'un jeu
+  // les trophées de NeoDex (3.4.8 et plus) : succès et records déclarés dans plugin.json ; sur un NeoDex plus ancien, rien ne se passe
+  const trophy = id => { ctx.games?.unlock(id).catch(() => {}); };
+  const trophyRecord = (id, v) => { if (v != null && Number.isFinite(+v)) ctx.games?.record(id, +v).catch(() => {}); };
 function gameLoop(st, appKey, update, draw) {
   cancelAnimationFrame(st.raf);
   const STEP = 1000 / 60; let acc = 0, last = performance.now();
@@ -627,7 +630,8 @@ $('fuCanvas').onpointerdown = e => {
   };
 };
 /* ---------- page ---------- */
-function fuInfo() { const s = fuSave(); $('fuStats').replaceChildren(...[['Galaxie', games?.best.fusion_galaxie ?? 0], ['Nébuleuse', games?.best.fusion_nebuleuse ?? 0], ...Object.keys(FU_SHAPES).map(k => [FU_SHAPES[k].name.split(' · ')[0], games?.best['fusion_' + k] ?? 0]), ['Plus loin', FU.stages[s.maxStage][0]], ['Défis', Object.values(s.stars).reduce((a, b) => a + b, 0) + ' / ' + FU_LEVELS.length * 3 + ' ★']].flatMap(([a, b]) => [el('span', '', a), el('b', '', String(b))])); }
+function fuInfo() {
+  setTimeout(fuTrophies); const s = fuSave(); $('fuStats').replaceChildren(...[['Galaxie', games?.best.fusion_galaxie ?? 0], ['Nébuleuse', games?.best.fusion_nebuleuse ?? 0], ...Object.keys(FU_SHAPES).map(k => [FU_SHAPES[k].name.split(' · ')[0], games?.best['fusion_' + k] ?? 0]), ['Plus loin', FU.stages[s.maxStage][0]], ['Défis', Object.values(s.stars).reduce((a, b) => a + b, 0) + ' / ' + FU_LEVELS.length * 3 + ' ★']].flatMap(([a, b]) => [el('span', '', a), el('b', '', String(b))])); }
 function fuMenu() {
   const s = fuSave(), sel = $('fuMode');
   sel.replaceChildren(Object.assign(el('option', '', 'Galaxie · 5 × 5'), {value: 'galaxie'}), Object.assign(el('option', '', 'Nébuleuse · 4 × 4'), {value: 'nebuleuse'}),
@@ -698,5 +702,13 @@ function fuSelf() {  // vérification : deux pareils fusionnent une seule fois p
 { const c = fuSelf(); console.assert(c === 'ok', 'fusion stellaire', c); }
 $('fuCanvas').__fs = {st: () => fu, check: fuSelf};
   // ---- fin ----
+  // les trophées, tirés des statistiques et des records gardés (aussi à l'ouverture : ce qui a été fait avant compte)
+  function fuTrophies() {
+    const s = fuSave(), st = FU.stages.map(x => x[0]), done = Object.values(s.stars || {}).filter(x => x > 0).length, sig = [s.games, s.maxStage, done, games.best.fusion_galaxie, games.best.fusion_nebuleuse].join(); if (sig === fuTrophies.sig) return; fuTrophies.sig = sig;
+    trophyRecord('galaxie', games.best.fusion_galaxie || null); trophyRecord('nebuleuse', games.best.fusion_nebuleuse || null);
+    if (s.games >= 1) trophy('premier'); if (s.maxStage >= st.indexOf('Planète')) trophy('planete'); if (s.maxStage >= st.indexOf('Étoile')) trophy('etoile');
+    if (s.maxStage >= st.indexOf('Supernova')) trophy('supernova'); if (s.maxStage >= st.indexOf('Trou noir')) trophy('trou-noir');
+    if (done >= 1) trophy('defi'); if (done >= FU_LEVELS.length) trophy('defis'); if (s.games >= 20) trophy('vingt');
+  }
   ctx.onOpen(() => { fuOpen(); });
 }
